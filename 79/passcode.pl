@@ -1,30 +1,27 @@
+:- ensure_loaded([input]).
+
 main :-
 	open('keylog.txt', read, Str),
 	read_numbers(Str, Numbers),
 	close(Str),
-	write(Numbers), nl.
+	write(Numbers), nl, nl,
+	define_before(Ordered, Numbers),
+	sort(Ordered, Sorted),
+	%write(Sorted), nl, nl,
+	code(X, Sorted),
+	write(X).
 
-read_numbers(Stream, []) :-
-	at_end_of_stream(Stream).
+define_before([], []).
+define_before([A|[B|[C|L1]]], [[X,Y,Z]|L2]) :-
+	A = [X|Y],
+	B = [Y|Z],
+	C = [Z|x],
+	define_before(L1, L2).
 
-read_numbers(Stream, [X|L]) :-
-	\+ at_end_of_stream(Stream),
-	read_word(Stream, X),
-	read_numbers(Stream, L).
+code([X|[Y|[]]], Order) :-
+	member([Y,x], Order),
+	member([X,Y], Order).
 
-read_word(Stream, Chars) :-
-	get_code(Stream, Char),
-	char_code(Number, Char),
-	check_char_read_rest(Number, Chars, Stream).
-	%number_chars(W, Chars).
-
-check_char_read_rest(10, [], _) :- !. % new line
-
-check_char_read_rest(-1, [], _) :- !. % end of stream
-
-check_char_read_rest(end_of_file, [], _) :- !.
-
-check_char_read_rest(Char, [Char|Chars], Stream) :-
-	get_code(Stream, NextChar),
-	char_code(Number, NextChar),
-	check_char_read_rest(Number, Chars, Stream).
+code([X|[Y|L]], Order) :-
+	member([X,Y], Order),
+	code([Y|L], Order).
