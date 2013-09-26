@@ -1,27 +1,17 @@
-:- ensure_loaded([input]).
+:- ensure_loaded([keylog]).
 
-main :-
-	open('keylog.txt', read, Str),
-	read_numbers(Str, Numbers),
-	close(Str),
-	write(Numbers), nl, nl,
-	define_before(Ordered, Numbers),
-	sort(Ordered, Sorted),
-	%write(Sorted), nl, nl,
-	code(X, Sorted),
-	write(X).
+before(X,Y) :-
+    before(X,Y,_).
 
-define_before([], []).
-define_before([A|[B|[C|L1]]], [[X,Y,Z]|L2]) :-
-	A = [X|Y],
-	B = [Y|Z],
-	C = [Z|x],
-	define_before(L1, L2).
+before(Y,Z) :-
+    before(_,Y,Z).
 
-code([X|[Y|[]]], Order) :-
-	member([Y,x], Order),
-	member([X,Y], Order).
+before(X,Z) :-
+    before(X,_,Z).
 
-code([X|[Y|L]], Order) :-
-	member([X,Y], Order),
-	code([Y|L], Order).
+code([X|[]]) :-
+    \+ before(X,_),
+    before(_,X).
+code([X|[Y|L]]) :-
+    before(X,Y),
+    code([Y|L]).
