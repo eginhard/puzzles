@@ -9,9 +9,11 @@ before(Y,Z) :-
 before(X,Z) :-
     before(X,_,Z).
 
-code([X|[]]) :-
+code([X|[]], 1) :-
     \+ before(X,_),
     before(_,X).
-code([X|[Y|L]]) :-
+
+code([X|[Y|L]], Length) :-
     before(X,Y),
-    code([Y|L]).
+    Less is Length-1,
+    code([Y|L], Less).
